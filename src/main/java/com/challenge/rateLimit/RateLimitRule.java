@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class RateLimitRule {
     private String notificationType;
     private int maxNotifications;
-    private TimeWindow limitWindow;
+    private TimeWindow timeWindow;
 }

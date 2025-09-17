@@ -16,7 +16,8 @@ public class Main {
         List<RateLimitRule> rules = new ArrayList<>();
 
         // Create example rules
-        rules.add(new RateLimitRule("news", 1, TimeWindow.DAY));
+        rules.add(new RateLimitRule("news", 4, TimeWindow.DAY));
+        rules.add(new RateLimitRule("news", 2, TimeWindow.MINUTE));
         rules.add(new RateLimitRule("status", 2, TimeWindow.MINUTE));
         rules.add(new RateLimitRule("marketing", 3, TimeWindow.HOUR));
 
@@ -71,7 +72,5 @@ public class Main {
         service.send("example", "another user", "example 1");
         service.send("example", "another user", "example 2");
         System.out.println("--------------------");
-
-        System.out.println(notificationsHistory.toString());
     }
 }

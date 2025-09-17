@@ -6,45 +6,45 @@ import java.util.List;
 import com.challenge.rateLimit.RateLimitRule;
 import com.challenge.rateLimit.TimeWindow;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
     private Gateway gateway;
     private List<RateLimitRule> rules;
     private List<NotificationEvent> notificationsHistory;
 
-    public NotificationServiceImpl(Gateway gateway, List<RateLimitRule> rules,
-            List<NotificationEvent> notificationsHistory) {
-        this.gateway = gateway;
-        this.rules = rules;
-        this.notificationsHistory = notificationsHistory;
-    }
-
     @Override
     public void send(String type, String userId, String message) {
 
-        // Find the rule for this message type (if any)
-        RateLimitRule ruleForType = rules.stream()
+        // Find the rules for this message type (if any)
+        List<RateLimitRule> rulesForType = rules.stream()
                 .filter(rule -> rule.getNotificationType().equals(type))
-                .findFirst()
-                .orElse(null);
+                .toList();
 
-        // If there is no rule for this message type -> send notification directly
-        if (ruleForType == null) {
+        // If there are no rules for this message type -> send notification directly
+        if (rulesForType.isEmpty()) {
             gateway.send(userId, message);
             notificationsHistory.add(new NotificationEvent(type, userId, LocalDateTime.now()));
             return;
         }
 
-        LocalDateTime windowStart = calculateWindowStart(ruleForType.getLimitWindow());
-        int windowMessageCount = countMessagesInWindow(windowStart, userId, type);
+        // Validate ALL rules
+        for (RateLimitRule rule : rulesForType) {
+            LocalDateTime windowStart = calculateWindowStart(rule.getTimeWindow());
+            int windowMessageCount = countMessagesInWindow(windowStart, userId, type);
 
-        if (windowMessageCount < ruleForType.getMaxNotifications()) {
-            gateway.send(userId, message);
-            notificationsHistory.add(new NotificationEvent(type, userId, LocalDateTime.now()));
-        } else {
-            System.out.println("Rate limit exceeded for " + type + " notifications sent to user " + userId);
-            return;
+            // If ANY rule fails, reject the message immediately
+            if (windowMessageCount >= rule.getMaxNotifications()) {
+                System.out.println("Rate limit exceeded for " + type + " notifications sent to user " + userId +
+                        " (Rule: " + rule.getMaxNotifications() + " per " + rule.getTimeWindow() + ")");
+                return;
+            }
         }
 
+        // All rules passed -> send message
+        gateway.send(userId, message);
+        notificationsHistory.add(new NotificationEvent(type, userId, LocalDateTime.now()));
     }
 
     private LocalDateTime calculateWindowStart(TimeWindow timeWindow) {
@@ -59,13 +59,13 @@ public class NotificationServiceImpl implements NotificationService {
 
     private int countMessagesInWindow(LocalDateTime windowStartTime, String userId, String notificationType) {
 
-        // Get notifications sent to user
+        // Get notifications by userId and type
         List<NotificationEvent> userNotifications = notificationsHistory.stream()
                 .filter(event -> event.getUserId().equals(userId))
                 .filter(event -> event.getNotificationType().equals(notificationType))
                 .toList();
 
-        // Count notifications in window
+        // Count notifications inside time window
         long windowMessageCount = userNotifications.stream()
                 .filter(event -> event.getTimestamp().isAfter(windowStartTime))
                 .count();
