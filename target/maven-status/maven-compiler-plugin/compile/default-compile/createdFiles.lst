@@ -1,1 +1,8 @@
+com\challenge\notifications\model\TimeWindow.class
+com\challenge\notifications\model\NotificationEvent.class
+com\challenge\notifications\NotificationApplication.class
 com\challenge\notifications\service\NotificationServiceImpl$1.class
+com\challenge\notifications\service\NotificationServiceImpl.class
+com\challenge\notifications\model\RateLimitRule.class
+com\challenge\notifications\gateway\Gateway.class
+com\challenge\notifications\service\NotificationService.class
