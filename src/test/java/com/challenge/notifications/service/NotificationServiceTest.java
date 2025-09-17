@@ -3,6 +3,7 @@ package com.challenge.notifications.service;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -101,14 +102,33 @@ public class NotificationServiceTest {
     public void send_OldEventsOutsideWindow_DoNotBlockWithinTimeWindow() {
 
         rules.add(new RateLimitRule("NEWS", 1, TimeWindow.DAY));
-        service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
         // old event outside 1 day window
         notificationsHistory.add(new NotificationEvent("NEWS", "USER", LocalDateTime.now().minusDays(1)));
+
+        service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
 
         service.send("NEWS", "USER", "News");
 
         verify(gateway, times(1)).send(eq("USER"), anyString());
         assertEquals(2, notificationsHistory.size()); // old one preserved plus new
+    }
+
+    @Test
+    public void send_WhenOneRuleAllowsButAnotherBlocks_ShouldRespectStricterRule() {
+
+        rules.add(new RateLimitRule("UPDATE", 1, TimeWindow.MINUTE)); // Minute limit
+        rules.add(new RateLimitRule("UPDATE", 3, TimeWindow.HOUR)); // Hourly limit
+
+        // Add a previous event 10 seconds ago to trigger the minute rule
+        notificationsHistory.add(new NotificationEvent("UPDATE", "USER", LocalDateTime.now().minusSeconds(10)));
+
+        service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
+
+        service.send("UPDATE", "USER", "BlockedMsg");
+
+        // Should not send because the minute rule is violated
+        verify(gateway, never()).send(eq("USER"), anyString());
+        assertEquals(1, notificationsHistory.size()); // history unchanged
     }
 
 }

@@ -55,16 +55,6 @@ public class NotificationServiceImpl implements NotificationService {
         return currentMessageCount >= rule.getMaxNotifications();
     }
 
-    private void sendNotificationDirectly(String userId, String message, String type) {
-        gateway.send(userId, message);
-        recordNotificationEvent(userId, type);
-    }
-
-    private void recordNotificationEvent(String userId, String type) {
-        NotificationEvent event = new NotificationEvent(type, userId, LocalDateTime.now());
-        notificationsHistory.add(event);
-    }
-
     private LocalDateTime calculateWindowStart(TimeWindow timeWindow) {
         LocalDateTime now = LocalDateTime.now();
         return switch (timeWindow) {
@@ -81,6 +71,16 @@ public class NotificationServiceImpl implements NotificationService {
                 .filter(event -> event.getNotificationType().equals(notificationType))
                 .filter(event -> event.getTimestamp().isAfter(windowStartTime))
                 .count();
+    }
+
+    private void sendNotificationDirectly(String userId, String message, String type) {
+        gateway.send(userId, message);
+        recordNotificationEvent(userId, type);
+    }
+
+    private void recordNotificationEvent(String userId, String type) {
+        NotificationEvent event = new NotificationEvent(type, userId, LocalDateTime.now());
+        notificationsHistory.add(event);
     }
 
 }

@@ -55,33 +55,33 @@ public class NotificationServiceImpl implements NotificationService {
 <span class="fc bfc" id="L55" title="All 2 branches covered.">        return currentMessageCount &gt;= rule.getMaxNotifications();</span>
     }
 
-    private void sendNotificationDirectly(String userId, String message, String type) {
-<span class="fc" id="L59">        gateway.send(userId, message);</span>
-<span class="fc" id="L60">        recordNotificationEvent(userId, type);</span>
-<span class="fc" id="L61">    }</span>
-
-    private void recordNotificationEvent(String userId, String type) {
-<span class="fc" id="L64">        NotificationEvent event = new NotificationEvent(type, userId, LocalDateTime.now());</span>
-<span class="fc" id="L65">        notificationsHistory.add(event);</span>
-<span class="fc" id="L66">    }</span>
-
     private LocalDateTime calculateWindowStart(TimeWindow timeWindow) {
-<span class="fc" id="L69">        LocalDateTime now = LocalDateTime.now();</span>
-<span class="pc bpc" id="L70" title="3 of 5 branches missed.">        return switch (timeWindow) {</span>
-<span class="nc" id="L71">            case SECOND -&gt; now.minusSeconds(1);</span>
-<span class="fc" id="L72">            case MINUTE -&gt; now.minusMinutes(1);</span>
-<span class="nc" id="L73">            case HOUR -&gt; now.minusHours(1);</span>
-<span class="fc" id="L74">            case DAY -&gt; now.minusDays(1);</span>
+<span class="fc" id="L59">        LocalDateTime now = LocalDateTime.now();</span>
+<span class="pc bpc" id="L60" title="3 of 5 branches missed.">        return switch (timeWindow) {</span>
+<span class="nc" id="L61">            case SECOND -&gt; now.minusSeconds(1);</span>
+<span class="fc" id="L62">            case MINUTE -&gt; now.minusMinutes(1);</span>
+<span class="nc" id="L63">            case HOUR -&gt; now.minusHours(1);</span>
+<span class="fc" id="L64">            case DAY -&gt; now.minusDays(1);</span>
         };
     }
 
     private int countMessagesInWindow(LocalDateTime windowStartTime, String userId, String notificationType) {
-<span class="fc" id="L79">        return (int) notificationsHistory.stream()</span>
-<span class="fc" id="L80">                .filter(event -&gt; event.getUserId().equals(userId))</span>
-<span class="fc" id="L81">                .filter(event -&gt; event.getNotificationType().equals(notificationType))</span>
-<span class="fc" id="L82">                .filter(event -&gt; event.getTimestamp().isAfter(windowStartTime))</span>
-<span class="fc" id="L83">                .count();</span>
+<span class="fc" id="L69">        return (int) notificationsHistory.stream()</span>
+<span class="fc" id="L70">                .filter(event -&gt; event.getUserId().equals(userId))</span>
+<span class="fc" id="L71">                .filter(event -&gt; event.getNotificationType().equals(notificationType))</span>
+<span class="fc" id="L72">                .filter(event -&gt; event.getTimestamp().isAfter(windowStartTime))</span>
+<span class="fc" id="L73">                .count();</span>
     }
+
+    private void sendNotificationDirectly(String userId, String message, String type) {
+<span class="fc" id="L77">        gateway.send(userId, message);</span>
+<span class="fc" id="L78">        recordNotificationEvent(userId, type);</span>
+<span class="fc" id="L79">    }</span>
+
+    private void recordNotificationEvent(String userId, String type) {
+<span class="fc" id="L82">        NotificationEvent event = new NotificationEvent(type, userId, LocalDateTime.now());</span>
+<span class="fc" id="L83">        notificationsHistory.add(event);</span>
+<span class="fc" id="L84">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.challenge.notifications.service.NotificationServiceTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.042 s -- in com.challenge.notifications.service.NotificationServiceTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.403 s -- in com.challenge.notifications.service.NotificationServiceTest
