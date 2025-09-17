@@ -36,7 +36,7 @@ public class NotificationServiceTest {
     private List<RateLimitRule> rules;
     private NotificationServiceImpl service;
 
-    @Before
+    @Before // Initializations before each test
     public void setUp() {
         gateway = Mockito.mock(Gateway.class);
         notificationsHistory = new ArrayList<>();
