@@ -20,7 +20,7 @@ It allows you to define limits (per notification type and time window) and preve
 ## 🚀 Run the App
 1. Clone the repository:
 ```
-git clone https://github.com/yourusername/notification-rate-limiter.git 
+git clone https://github.com/yourusername/notification-rate-limiter.git
 cd notification-rate-limiter  
 ```
 2. Build the project:  
