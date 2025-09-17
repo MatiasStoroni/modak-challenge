@@ -23,18 +23,18 @@ It allows you to define limits (per notification type and time window) and preve
 git clone https://github.com/yourusername/notification-rate-limiter.git
 cd notification-rate-limiter  
 ```
-2. Build the project:  
-   `mvn clean install`  
-3. Run the app:  
-   `mvn exec:java`  
+2. Build the project:
+`mvn clean install`  
+3. Run the app:
+`mvn exec:java`  
 ---
 ## 🖥️ Console Usage
 When running, the app will:  
 1. Show the **existing rate limit rules**.  
 2. Ask you for:
-   - Notification type  
-   - User ID  
-   - Number of messages (max 6)  
+- Notification type
+- User ID
+- Number of messages (max 6)  
 #### Example session:  
 ```
 Existing rules:
