@@ -34,24 +34,25 @@ When running, the app will:  
    - User ID  
    - Number of messages (max 6)  
 #### Example session:  
-`Existing rules:`
-- `Type: news, Max: 3 per MINUTE`
-- `Type: status, Max: 5 per HOUR`
+```
+Existing rules:
+- Type: news, Max: 3 per MINUTE
+- Type: status, Max: 5 per HOUR
 
-`Enter notification type (or 'exit'):`
-`news`  
+Enter notification type (or 'exit'):
+news 
 
-`Enter userId:`
-`user1`  
+Enter userId:
+user1  
 
-`Enter number of messages to send (max 6):`
-`4`  
+Enter number of messages to send (max 6):
+4 
 
-`✅ Sent notification #1 for user user1 (news)`
-`✅ Sent notification #2 for user user1 (news)`
-`❌ Rate limit exceeded for user user1 (news)`
-`❌ Rate limit exceeded for user user1 (news)` 
-
+✅ Sent notification #1 for user user1 (news)
+✅ Sent notification #2 for user user1 (news)
+❌ Rate limit exceeded for user user1 (news)
+❌ Rate limit exceeded for user user1 (news)
+```
 ---
 ## 🧪 Run Tests
 To run all unit tests:
@@ -68,9 +69,11 @@ Coverage report can be found at:
 - Max number of messages in one batch = **6** (to avoid spam).  
 ---
 ## 📂 Project Structure
-`src/`
-`├── main/java/com/challenge/notifications/`
-`│   ├── model/         # Data models (RateLimitRule, NotificationEvent, TimeWindow)
-`│   ├── service/       # NotificationService and implementation`
-`│   └── NotificationApplication.java   # Main console entry point`
-`└── test/java/...      # Unit tests`
+```
+src/
+├── main/java/com/challenge/notifications/
+│   ├── model/         # Data models (RateLimitRule, NotificationEvent, TimeWindow)
+│   ├── service/       # NotificationService and implementation
+│   └── NotificationApplication.java   # Main console entry point
+└── test/java/...      # Unit tests
+```
