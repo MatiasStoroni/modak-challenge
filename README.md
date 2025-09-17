@@ -18,9 +18,11 @@ It allows you to define limits (per notification type and time window) and preve
 - Maven 3.6+  
 ---
 ## 🚀 Run the App
-1. Clone the repository:  
-   `git clone https://github.com/yourusername/notification-rate-limiter.git`  
-   `cd notification-rate-limiter`  
+1. Clone the repository:
+```
+git clone https://github.com/yourusername/notification-rate-limiter.git 
+cd notification-rate-limiter  
+```
 2. Build the project:  
    `mvn clean install`  
 3. Run the app:  
