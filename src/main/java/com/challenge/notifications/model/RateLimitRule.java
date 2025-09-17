@@ -4,7 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data // getters, setters and additional methods
+/**
+ * Defines a rate limit for a specific notification type,
+ * including the maximum allowed notifications and the time window.
+ */
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class RateLimitRule {
