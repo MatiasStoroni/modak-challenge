@@ -24,7 +24,7 @@ It allows you to define limits (per notification type and time window) and preve
 2. Build the project:  
    `mvn clean install`  
 3. Run the app:  
-   `mvn exec:java -Dexec.mainClass="com.challenge.notifications.NotificationApplication"`  
+   `mvn exec:java`  
 ---
 ## 🖥️ Console Usage
 When running, the app will:  
