@@ -20,8 +20,8 @@ It allows you to define limits (per notification type and time window) and preve
 ## 🚀 Run the App
 1. Clone the repository:
 ```
-git clone https://github.com/yourusername/notification-rate-limiter.git
-cd notification-rate-limiter  
+git clone https://github.com/MatiasStoroni/modak-challenge.git
+cd modak-challenge
 ```
 2. Build the project:
 `mvn clean install`  
