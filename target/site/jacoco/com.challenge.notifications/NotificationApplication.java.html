@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NotificationApplication.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">challenge</a> &gt; <a href="index.source.html" class="el_package">com.challenge.notifications</a> &gt; <span class="el_source">NotificationApplication.java</span></div><h1>NotificationApplication.java</h1><pre class="source lang-java linenums">package com.challenge.notifications;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import com.challenge.notifications.gateway.Gateway;
+import com.challenge.notifications.model.NotificationEvent;
+import com.challenge.notifications.model.RateLimitRule;
+import com.challenge.notifications.model.TimeWindow;
+import com.challenge.notifications.service.NotificationServiceImpl;
+
+<span class="nc" id="L13">public class NotificationApplication {</span>
+    public static void main(String[] args) {
+
+<span class="nc" id="L16">        List&lt;RateLimitRule&gt; rules = createExampleRules();</span>
+<span class="nc" id="L17">        List&lt;NotificationEvent&gt; notificationsHistory = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L19">        NotificationServiceImpl service = new NotificationServiceImpl(new Gateway(), rules, notificationsHistory);</span>
+
+<span class="nc" id="L21">        showExistingRules(rules);</span>
+
+<span class="nc" id="L23">        Scanner scanner = new Scanner(System.in);</span>
+
+        while (true) {
+<span class="nc" id="L26">            String type = readNotificationType(scanner);</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">            if (type == null)</span>
+<span class="nc" id="L28">                break; // exit condition</span>
+
+<span class="nc" id="L30">            String user = readUserId(scanner);</span>
+<span class="nc" id="L31">            int count = readMessageCount(scanner);</span>
+
+<span class="nc" id="L33">            sendMultipleNotifications(type, user, count, service);</span>
+<span class="nc" id="L34">        }</span>
+
+<span class="nc" id="L36">        scanner.close();</span>
+<span class="nc" id="L37">    }</span>
+
+    public static List&lt;RateLimitRule&gt; createExampleRules() {
+<span class="fc" id="L40">        List&lt;RateLimitRule&gt; rules = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L41">        rules.add(new RateLimitRule(&quot;news&quot;, 1, TimeWindow.DAY));</span>
+<span class="fc" id="L42">        rules.add(new RateLimitRule(&quot;status&quot;, 2, TimeWindow.MINUTE));</span>
+<span class="fc" id="L43">        rules.add(new RateLimitRule(&quot;marketing&quot;, 3, TimeWindow.HOUR));</span>
+<span class="fc" id="L44">        rules.add(new RateLimitRule(&quot;marketing&quot;, 1, TimeWindow.MINUTE));</span>
+<span class="fc" id="L45">        return rules;</span>
+    }
+
+    // ------------------------------
+    // Display Helper
+    // ------------------------------
+    private static void showExistingRules(List&lt;RateLimitRule&gt; rules) {
+<span class="nc" id="L52">        System.out.println(&quot;Current rules:&quot;);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        for (RateLimitRule rule : rules) {</span>
+<span class="nc" id="L54">            System.out.printf(&quot;- %s: max %d per %s%n&quot;,</span>
+<span class="nc" id="L55">                    rule.getNotificationType(), rule.getMaxNotifications(), rule.getTimeWindow());</span>
+<span class="nc" id="L56">        }</span>
+<span class="nc" id="L57">        System.out.println(&quot;--------------------&quot;);</span>
+<span class="nc" id="L58">    }</span>
+
+    // ------------------------------
+    // Input Helpers
+    // ------------------------------
+    private static String readNotificationType(Scanner scanner) {
+<span class="nc" id="L64">        System.out.println(&quot;Enter notification type (or 'exit'):&quot;);</span>
+<span class="nc" id="L65">        String type = scanner.nextLine().trim();</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (&quot;exit&quot;.equalsIgnoreCase(type))</span>
+<span class="nc" id="L67">            return null;</span>
+<span class="nc" id="L68">        return type;</span>
+    }
+
+    private static String readUserId(Scanner scanner) {
+<span class="nc" id="L72">        System.out.println(&quot;Enter userId:&quot;);</span>
+<span class="nc" id="L73">        return scanner.nextLine().trim();</span>
+    }
+
+    private static int readMessageCount(Scanner scanner) {
+        int count;
+        while (true) {
+<span class="nc" id="L79">            System.out.println(&quot;Enter number of messages to send (max 6):&quot;);</span>
+            try {
+<span class="nc" id="L81">                count = Integer.parseInt(scanner.nextLine().trim());</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                if (count &gt; 6) {</span>
+<span class="nc" id="L83">                    System.out.println(&quot;Maximum allowed is 6 messages. Sending 6 instead.&quot;);</span>
+<span class="nc" id="L84">                    return 6;</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">                } else if (count &lt;= 0) {</span>
+<span class="nc" id="L86">                    System.out.println(&quot;Number must be at least 1. Try again.&quot;);</span>
+<span class="nc" id="L87">                    continue;</span>
+                }
+<span class="nc" id="L89">                return count;</span>
+<span class="nc" id="L90">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L91">                System.out.println(&quot;Invalid number. Try again.&quot;);</span>
+<span class="nc" id="L92">            }</span>
+        }
+    }
+
+    // ------------------------------
+    // Notification Sending Helper
+    // ------------------------------
+    private static void sendMultipleNotifications(String type, String user,
+            int count, NotificationServiceImpl service) {
+<span class="nc" id="L101">        System.out.println(&quot;---- Sending &quot; + count + &quot; &quot; + type + &quot; notification(s) to &quot; + user);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        for (int i = 1; i &lt;= count; i++) {</span>
+<span class="nc" id="L103">            String message = type + &quot; message &quot; + i;</span>
+<span class="nc" id="L104">            service.send(type, user, message);</span>
+        }
+<span class="nc" id="L106">        System.out.println(&quot;---- Done sending &quot; + type + &quot; notifications to &quot; + user + &quot;\n&quot;);</span>
+<span class="nc" id="L107">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

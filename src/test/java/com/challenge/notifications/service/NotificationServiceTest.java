@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -58,7 +57,7 @@ public class NotificationServiceTest {
     @Test
     public void send_WithRuleWithinLimit_AllowsSend() {
 
-        rules.add(new RateLimitRule("EMAIL", 2, TimeWindow.MINUTE));
+        rules.add(new RateLimitRule("EMAIL", 2, TimeWindow.SECOND));
         service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
 
         service.send("EMAIL", "USER", "Email 1");
@@ -86,7 +85,7 @@ public class NotificationServiceTest {
     @Test
     public void send_DifferentUser_NotBlockedByAnotherUsersMessages() {
 
-        rules.add(new RateLimitRule("NEWS", 1, TimeWindow.MINUTE));
+        rules.add(new RateLimitRule("NEWS", 1, TimeWindow.DAY));
         service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
 
         service.send("NEWS", "USER", "News 1");

@@ -1,14 +1,16 @@
 package com.challenge.notifications.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Defines a rate limit for a specific notification type,
  * including the maximum allowed notifications and the time window.
  */
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class RateLimitRule {
