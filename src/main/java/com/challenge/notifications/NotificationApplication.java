@@ -1,15 +1,15 @@
-package com.challenge;
+package com.challenge.notifications;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.challenge.notifications.Gateway;
-import com.challenge.notifications.NotificationEvent;
-import com.challenge.notifications.NotificationServiceImpl;
-import com.challenge.rateLimit.RateLimitRule;
-import com.challenge.rateLimit.TimeWindow;
+import com.challenge.notifications.gateway.Gateway;
+import com.challenge.notifications.model.NotificationEvent;
+import com.challenge.notifications.model.RateLimitRule;
+import com.challenge.notifications.model.TimeWindow;
+import com.challenge.notifications.service.NotificationServiceImpl;
 
-public class Main {
+public class NotificationApplication {
     public static void main(String[] args) {
 
         // Rules storage

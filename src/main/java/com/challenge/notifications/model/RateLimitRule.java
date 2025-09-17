@@ -1,4 +1,4 @@
-package com.challenge.rateLimit;
+package com.challenge.notifications.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

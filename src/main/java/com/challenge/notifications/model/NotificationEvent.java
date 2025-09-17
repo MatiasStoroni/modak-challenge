@@ -1,4 +1,4 @@
-package com.challenge.notifications;
+package com.challenge.notifications.model;
 
 import java.time.LocalDateTime;
 

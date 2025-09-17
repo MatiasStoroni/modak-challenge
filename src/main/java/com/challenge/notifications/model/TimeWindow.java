@@ -1,4 +1,4 @@
-package com.challenge.rateLimit;
+package com.challenge.notifications.model;
 
 public enum TimeWindow {
     SECOND,

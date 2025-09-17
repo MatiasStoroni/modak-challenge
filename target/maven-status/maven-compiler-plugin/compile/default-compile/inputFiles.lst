@@ -1,8 +1,7 @@
-C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\Main.java
-C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\Gateway.java
-C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\NotificationEvent.java
-C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\NotificationService.java
-C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\NotificationServiceImpl.java
-C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\rateLimit\RateLimiter.java
-C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\rateLimit\RateLimitRule.java
-C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\rateLimit\TimeWindow.java
+C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\gateway\Gateway.java
+C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\model\NotificationEvent.java
+C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\model\RateLimitRule.java
+C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\model\TimeWindow.java
+C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\NotificationApplication.java
+C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\service\NotificationService.java
+C:\Projects\Challenges\modak-challenge\src\main\java\com\challenge\notifications\service\NotificationServiceImpl.java
