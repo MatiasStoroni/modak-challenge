@@ -19,14 +19,14 @@ public class NotificationEventServiceImpl implements NotificationEventService {
     private NotificationEventRepository notificationEventRepository;
 
     @Override
-    public NotificationEvent save(NotificationEvent event) {
-        return notificationEventRepository.save(event);
+    public NotificationEvent save(NotificationEvent notificationEvent) {
+        return notificationEventRepository.save(notificationEvent);
     }
 
     @Override
     public List<NotificationEvent> findAll() {
         return notificationEventRepository.findAll();
-    };
+    }
 
     @Override
     public List<NotificationEvent> findByUserIdAndNotificationTypeAndTimestampAfter(String userId,

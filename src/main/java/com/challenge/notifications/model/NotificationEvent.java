@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Represents a single notification event sent to a user,
- * including its type, recipient, and timestamp.
+ * Represents an event of a single notification sent to a user,
+ * including its type, recipient, and timestamp.-
  */
 @Getter
 @Setter

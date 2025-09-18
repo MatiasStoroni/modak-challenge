@@ -20,8 +20,8 @@ public class RateLimitRuleServiceImpl implements RateLimitRuleService {
     private RateLimitRuleRepository rateLimitRuleRepository;
 
     @Override
-    public RateLimitRule save(RateLimitRule rule) {
-        return rateLimitRuleRepository.save(rule);
+    public RateLimitRule save(RateLimitRule rateLimitRule) {
+        return rateLimitRuleRepository.save(rateLimitRule);
     }
 
     @Override
@@ -35,20 +35,20 @@ public class RateLimitRuleServiceImpl implements RateLimitRuleService {
     }
 
     @Override
-    public RateLimitRule update(Long id, RateLimitRule rule) {
+    public RateLimitRule update(Long id, RateLimitRule rateLimitRule) {
         RateLimitRule existingRateLimitRule = rateLimitRuleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Rule not found"));
 
-        if (rule.getNotificationType() != null && !rule.getNotificationType().isEmpty()) {
-            existingRateLimitRule.setNotificationType(rule.getNotificationType());
+        if (rateLimitRule.getNotificationType() != null) {
+            existingRateLimitRule.setNotificationType(rateLimitRule.getNotificationType());
         }
 
-        if (rule.getMaxNotifications() != null) {
-            existingRateLimitRule.setMaxNotifications(rule.getMaxNotifications());
+        if (rateLimitRule.getMaxNotifications() != null) {
+            existingRateLimitRule.setMaxNotifications(rateLimitRule.getMaxNotifications());
         }
 
-        if (rule.getTimeWindow() != null) {
-            existingRateLimitRule.setTimeWindow(rule.getTimeWindow());
+        if (rateLimitRule.getTimeWindow() != null) {
+            existingRateLimitRule.setTimeWindow(rateLimitRule.getTimeWindow());
         }
 
         return rateLimitRuleRepository.save(existingRateLimitRule);
