@@ -5,8 +5,8 @@ package com.challenge.notifications.model;
  * Determines the period over which the maximum notifications are counted.
  */
 public enum TimeWindow {
-    SECOND,
     MINUTE,
     HOUR,
-    DAY
+    DAY,
+    WEEK
 }

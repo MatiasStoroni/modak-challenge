@@ -1,36 +1,25 @@
 package com.challenge.notifications.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.challenge.notifications.service.notification.NotificationServiceImpl;
-
-import lombok.Getter;
-import lombok.Setter;
+import com.challenge.notifications.dto.NotificationRequestDto;
+import com.challenge.notifications.service.notification.NotificationService;
 
 @RestController
 @RequestMapping("/notifications")
 public class NotificationController {
 
     @Autowired
-    NotificationServiceImpl notificationService;
+    NotificationService notificationService;
 
-    @PostMapping
-    public void send(@RequestBody Notification notification) {
-        notificationService.send(
-                notification.getNotificationType(),
-                notification.getUserId(),
-                notification.getMessage());
+    @PostMapping("/send")
+    public ResponseEntity<String> sendNotification(@RequestBody NotificationRequestDto notification) {
+        notificationService.send(notification.getNotificationType(), notification.getUserId(), notification.getMessage());
+        return ResponseEntity.ok("Notification sent successfully");
     }
-}
-
-@Getter
-@Setter
-class Notification {
-    private String notificationType;
-    private String userId;
-    private String message;
 }

@@ -11,9 +11,9 @@ public interface RateLimitRuleService {
 
     Optional<RateLimitRule> findById(Long id);
 
-    RateLimitRule save(RateLimitRule rule);
+    RateLimitRule save(RateLimitRule rateLimitRule);
 
-    RateLimitRule update(Long id, RateLimitRule rule);
+    RateLimitRule update(Long id, RateLimitRule rateLimitRule);
 
     void deleteById(Long id);
 

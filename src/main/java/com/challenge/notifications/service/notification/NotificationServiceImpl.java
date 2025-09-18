@@ -6,12 +6,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.challenge.notifications.exception.RateLimitExceededException;
 import com.challenge.notifications.model.NotificationEvent;
 import com.challenge.notifications.model.RateLimitRule;
 import com.challenge.notifications.model.TimeWindow;
 import com.challenge.notifications.service.Gateway;
-import com.challenge.notifications.service.notificationEvent.NotificationEventServiceImpl;
-import com.challenge.notifications.service.rateLimitRule.RateLimitRuleServiceImpl;
+import com.challenge.notifications.service.notificationEvent.NotificationEventService;
+import com.challenge.notifications.service.rateLimitRule.RateLimitRuleService;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -25,15 +26,15 @@ public class NotificationServiceImpl implements NotificationService {
     private final Gateway gateway;
 
     @Autowired
-    private RateLimitRuleServiceImpl ruleService;
+    private RateLimitRuleService rateLimitRuleService;
 
     @Autowired
-    private NotificationEventServiceImpl eventService;
+    private NotificationEventService notificationEventService;
 
     @Override
     public void send(String type, String userId, String message) {
 
-        List<RateLimitRule> applicableRules = ruleService.findByNotificationType(type);
+        List<RateLimitRule> applicableRules = rateLimitRuleService.findByNotificationType(type);
 
         if (applicableRules.isEmpty()) {
             sendNotificationDirectly(userId, message, type);
@@ -41,8 +42,8 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         if (isRateLimitExceeded(applicableRules, userId, type)) {
-            System.out.println("Rate limit exceeded for " + type + " notifications sent to user " + userId);
-            return;
+            throw new RateLimitExceededException(
+                    "Rate limit exceeded for " + type + " notifications sent to user " + userId);
         }
 
         sendNotificationDirectly(userId, message, type);
@@ -59,18 +60,24 @@ public class NotificationServiceImpl implements NotificationService {
 
     private boolean isRuleViolated(RateLimitRule rule, String userId, String type) {
         LocalDateTime windowStart = calculateWindowStart(rule.getTimeWindow());
-        int currentMessageCount = eventService.countByUserAndTypeAfterTime(userId, type, windowStart);
+        int currentMessageCount = countMessagesInWindow(userId, type, windowStart);
         return currentMessageCount >= rule.getMaxNotifications();
     }
 
     private LocalDateTime calculateWindowStart(TimeWindow timeWindow) {
         LocalDateTime now = LocalDateTime.now();
         return switch (timeWindow) {
-            case SECOND -> now.minusSeconds(1);
             case MINUTE -> now.minusMinutes(1);
             case HOUR -> now.minusHours(1);
             case DAY -> now.minusDays(1);
+            case WEEK -> now.minusDays(7);
         };
+    }
+
+    private int countMessagesInWindow(String userId, String notificationType, LocalDateTime windowStartTime) {
+        return (int) notificationEventService
+                .findByUserIdAndNotificationTypeAndTimestampAfter(userId, notificationType, windowStartTime)
+                .size();
     }
 
     private void sendNotificationDirectly(String userId, String message, String type) {
@@ -83,7 +90,7 @@ public class NotificationServiceImpl implements NotificationService {
         event.setNotificationType(type);
         event.setUserId(userId);
         event.setTimestamp(LocalDateTime.now());
-        eventService.save(event);
+        notificationEventService.save(event);
     }
 
 }

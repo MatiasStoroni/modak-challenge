@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.challenge.notifications.model.RateLimitRule;
-import com.challenge.notifications.service.rateLimitRule.RateLimitRuleServiceImpl;
+import com.challenge.notifications.service.rateLimitRule.RateLimitRuleService;
 
 import jakarta.validation.Valid;
 
@@ -23,35 +23,35 @@ import jakarta.validation.Valid;
 public class RateLimitRuleController {
 
     @Autowired
-    RateLimitRuleServiceImpl ruleService;
+    RateLimitRuleService rateLimitRuleService;
 
     @GetMapping
     public ResponseEntity<List<RateLimitRule>> getAllRateLimitRules() {
-        return ResponseEntity.ok(ruleService.findAll());
+        return ResponseEntity.ok(rateLimitRuleService.findAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<RateLimitRule> getRateLimitRule(@PathVariable Long id) {
-        return ruleService.findById(id)
+        return rateLimitRuleService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<?> createRateLimitRule(@Valid @RequestBody RateLimitRule rateLimitRule) {
-        RateLimitRule created = ruleService.save(rateLimitRule);
+        RateLimitRule created = rateLimitRuleService.save(rateLimitRule);
         return ResponseEntity.ok(created);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateRateLimitRule(@PathVariable Long id,
             @Valid @RequestBody RateLimitRule rule) {
-        return ResponseEntity.ok(ruleService.update(id, rule));
+        return ResponseEntity.ok(rateLimitRuleService.update(id, rule));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteRateLimitRule(@PathVariable Long id) {
-        ruleService.deleteById(id);
+        rateLimitRuleService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -2,7 +2,6 @@ package com.challenge.notifications.service.notificationEvent;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,25 +24,15 @@ public class NotificationEventServiceImpl implements NotificationEventService {
     }
 
     @Override
-    public Optional<NotificationEvent> findById(Long id) {
-        return notificationEventRepository.findById(id);
-    }
-
-    @Override
     public List<NotificationEvent> findAll() {
         return notificationEventRepository.findAll();
-    }
+    };
 
     @Override
-    public void deleteById(Long id) {
-        notificationEventRepository.deleteById(id);
+    public List<NotificationEvent> findByUserIdAndNotificationTypeAndTimestampAfter(String userId,
+            String notificationType, LocalDateTime windowStart) {
+        return notificationEventRepository.findByUserIdAndNotificationTypeAndTimestampAfter(userId, notificationType,
+                windowStart);
     }
 
-    @Override
-    public int countByUserAndTypeAfterTime(String userId, String notificationType, LocalDateTime timestamp) {
-        return notificationEventRepository.countByUserIdAndNotificationTypeAndTimestampAfter(
-                userId,
-                notificationType.toLowerCase(),
-                timestamp);
-    }
 }

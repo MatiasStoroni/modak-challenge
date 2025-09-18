@@ -1,133 +1,177 @@
-// package com.challenge.notifications.service;
+package com.challenge.notifications.service;
 
-// import static org.junit.Assert.assertEquals;
-// import static org.mockito.ArgumentMatchers.anyString;
-// import static org.mockito.ArgumentMatchers.eq;
-// import static org.mockito.Mockito.never;
-// import static org.mockito.Mockito.times;
-// import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-// import java.time.LocalDateTime;
-// import java.util.ArrayList;
-// import java.util.List;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-// import org.junit.Before;
-// import org.junit.Test;
-// import org.mockito.Mockito;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-// import com.challenge.notifications.gateway.Gateway;
-// import com.challenge.notifications.model.NotificationEvent;
-// import com.challenge.notifications.model.RateLimitRule;
-// import com.challenge.notifications.model.TimeWindow;
+import com.challenge.notifications.exception.RateLimitExceededException;
+import com.challenge.notifications.model.NotificationEvent;
+import com.challenge.notifications.model.RateLimitRule;
+import com.challenge.notifications.model.TimeWindow;
+import com.challenge.notifications.service.notification.NotificationService;
+import com.challenge.notifications.service.notification.NotificationServiceImpl;
+import com.challenge.notifications.service.notificationEvent.NotificationEventService;
+import com.challenge.notifications.service.rateLimitRule.RateLimitRuleService;
 
-// /**
-//  * Naming Convention for Tests:
-//  * 
-//  * Each test method is named using the pattern:
-//  * 
-//  * methodUnderTest_scenario_expectedBehavior
-//  * 
-//  * For example:
-//  * send_NoRules_SendsNotification -> tests send() when there are no rules
-//  */
-// public class NotificationServiceTest {
-//     private Gateway gateway;
-//     private List<NotificationEvent> notificationsHistory;
-//     private List<RateLimitRule> rules;
-//     private NotificationServiceImpl service;
+/**
+ * Naming Convention for Tests:
+ * 
+ * Each test method is named using the pattern:
+ * 
+ * methodUnderTest_scenario_expectedBehavior
+ * 
+ * For example:
+ * send_NoRules_SendsNotification -> tests send() when there are no rules
+ */
+public class NotificationServiceTest {
 
-//     @Before // Initializations before each test
-//     public void setUp() {
-//         gateway = Mockito.mock(Gateway.class);
-//         notificationsHistory = new ArrayList<>();
-//         rules = new ArrayList<>();
+    @Mock
+    private Gateway gateway;
 
-//         service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
-//     }
+    @Mock
+    private RateLimitRuleService ruleService;
 
-//     @Test
-//     public void send_NoRules_SendsNotification() {
+    @Mock
+    private NotificationEventService eventService;
 
-//         service.send("SMS", "USER", "Welcome");
+    private NotificationService service;
 
-//         verify(gateway, times(1)).send("USER", "Welcome");
-//         assertEquals(1, notificationsHistory.size());
-//     }
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        service = new NotificationServiceImpl(gateway, ruleService, eventService);
+    }
 
-//     @Test
-//     public void send_WithRuleWithinLimit_AllowsSend() {
+    @Test
+    public void send_NoRules_SendsNotification() {
 
-//         rules.add(new RateLimitRule("EMAIL", 2, TimeWindow.SECOND));
-//         service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
+        when(ruleService.findByNotificationType("sms")).thenReturn(new ArrayList<>());
 
-//         service.send("EMAIL", "USER", "Email 1");
-//         service.send("EMAIL", "USER", "Email 2");
+        service.send("SMS", "user", "Welcome");
 
-//         verify(gateway, times(2)).send(eq("USER"), anyString());
-//         assertEquals(2, notificationsHistory.size());
-//     }
+        verify(gateway, times(1)).send("user", "Welcome");
+        verify(eventService, times(1)).save(any(NotificationEvent.class));
+    }
 
-//     @Test
-//     public void send_WithRuleExceeded_DoesNotSendBeyondLimit() {
+    @Test
+    public void send_WithRuleWithinLimit_AllowsSend() {
 
-//         rules.add(new RateLimitRule("STATUS", 3, TimeWindow.MINUTE));
-//         service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
+        List<RateLimitRule> rules = new ArrayList<>();
+        rules.add(new RateLimitRule(1L, "STATUS", 2, TimeWindow.MINUTE));
 
-//         service.send("STATUS", "USER", "Email 1");
-//         service.send("STATUS", "USER", "Email 2");
-//         service.send("STATUS", "USER", "Email 3");
-//         service.send("STATUS", "USER", "Email 4"); // should be blocked
+        when(ruleService.findByNotificationType("STATUS"))
+                .thenReturn(rules);
 
-//         verify(gateway, times(3)).send(eq("USER"), anyString());
-//         assertEquals(3, notificationsHistory.size());
-//     }
+        when(eventService.findByUserIdAndNotificationTypeAndTimestampAfter(eq("user"), eq("STATUS"),
+                any(LocalDateTime.class)))
+                .thenReturn(new ArrayList<>())
+                .thenReturn(createEventList("STATUS", "user", 1));
 
-//     @Test
-//     public void send_DifferentUser_NotBlockedByAnotherUsersMessages() {
+        service.send("STATUS", "user", "Status message 1");
+        service.send("STATUS", "user", "Status message 2");
 
-//         rules.add(new RateLimitRule("NEWS", 1, TimeWindow.DAY));
-//         service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
+        verify(gateway, times(2)).send(eq("user"), anyString());
+        verify(eventService, times(2)).save(any(NotificationEvent.class));
+    }
 
-//         service.send("NEWS", "USER", "News 1");
-//         service.send("NEWS", "OTHER_USER", "News 1");
-//         service.send("NEWS", "USER", "News 2"); // should be blocked for "USER"
+    @Test
+    public void send_WithRuleExceeded_ThrowsException() {
+        List<RateLimitRule> rules = new ArrayList<>();
+        rules.add(new RateLimitRule(1L, "UPDATE", 2, TimeWindow.HOUR));
 
-//         verify(gateway, times(1)).send(eq("USER"), anyString());
-//         verify(gateway, times(1)).send(eq("OTHER_USER"), anyString());
-//         assertEquals(2, notificationsHistory.size());
-//     }
+        when(ruleService.findByNotificationType("UPDATE"))
+                .thenReturn(rules);
 
-//     @Test
-//     public void send_OldEventsOutsideWindow_DoNotBlockWithinTimeWindow() {
+        when(eventService.findByUserIdAndNotificationTypeAndTimestampAfter(eq("user"), eq("UPDATE"),
+                any(LocalDateTime.class)))
+                .thenReturn(new ArrayList<>())
+                .thenReturn(createEventList("UPDATE", "user", 1))
+                .thenReturn(createEventList("UPDATE", "user", 2));
 
-//         rules.add(new RateLimitRule("NEWS", 1, TimeWindow.DAY));
-//         // old event outside 1 day window
-//         notificationsHistory.add(new NotificationEvent("NEWS", "USER", LocalDateTime.now().minusDays(1)));
+        service.send("UPDATE", "user", "Update message 1");
+        service.send("UPDATE", "user", "Update message 2");
 
-//         service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
+        assertThrows(RateLimitExceededException.class, () -> {
+            service.send("UPDATE", "user", "Update message 3");
+        });
 
-//         service.send("NEWS", "USER", "News");
+        verify(gateway, times(2)).send(eq("user"), anyString());
+        verify(eventService, times(2)).save(any(NotificationEvent.class));
+    }
 
-//         verify(gateway, times(1)).send(eq("USER"), anyString());
-//         assertEquals(2, notificationsHistory.size()); // old one preserved plus new
-//     }
+    @Test
+    public void send_DifferentUser_NotBlockedByAnotherUsersMessages() {
+        List<RateLimitRule> rules = new ArrayList<>();
+        rules.add(new RateLimitRule(1L, "NEWS", 1, TimeWindow.DAY));
 
-//     @Test
-//     public void send_WhenOneRuleAllowsButAnotherBlocks_ShouldRespectStricterRule() {
+        when(ruleService.findByNotificationType("NEWS"))
+                .thenReturn(rules);
 
-//         rules.add(new RateLimitRule("UPDATE", 1, TimeWindow.MINUTE)); // Minute limit
-//         rules.add(new RateLimitRule("UPDATE", 3, TimeWindow.HOUR)); // Hourly limit
+        when(eventService.findByUserIdAndNotificationTypeAndTimestampAfter(eq("user"), eq("NEWS"),
+                any(LocalDateTime.class)))
+                .thenReturn(new ArrayList<>())
+                .thenReturn(createEventList("NEWS", "user", 1));
 
-//         // Add a previous event 10 seconds ago to trigger the minute rule
-//         notificationsHistory.add(new NotificationEvent("UPDATE", "USER", LocalDateTime.now().minusSeconds(10)));
+        when(eventService.findByUserIdAndNotificationTypeAndTimestampAfter(eq("other_user"), eq("NEWS"),
+                any(LocalDateTime.class)))
+                .thenReturn(new ArrayList<>());
 
-//         service = new NotificationServiceImpl(gateway, rules, notificationsHistory);
+        service.send("NEWS", "user", "News 1");
+        service.send("NEWS", "other_user", "News 1");
 
-//         service.send("UPDATE", "USER", "BlockedMsg");
+        assertThrows(RateLimitExceededException.class, () -> {
+            service.send("NEWS", "user", "News 2");
+        });
 
-//         // Should not send because the minute rule is violated
-//         verify(gateway, never()).send(eq("USER"), anyString());
-//         assertEquals(1, notificationsHistory.size()); // history unchanged
-//     }
+        verify(gateway, times(1)).send(eq("user"), anyString());
+        verify(gateway, times(1)).send(eq("other_user"), anyString());
+        verify(eventService, times(2)).save(any(NotificationEvent.class));
+    }
 
-// }
+    @Test
+    public void send_WhenOneRuleAllowsButAnotherBlocks_ShouldRespectStricterRule() {
+        List<RateLimitRule> rules = new ArrayList<>();
+        rules.add(new RateLimitRule(1L, "MARKETING", 1, TimeWindow.MINUTE));
+        rules.add(new RateLimitRule(2L, "MARKETING", 3, TimeWindow.HOUR));
+
+        when(ruleService.findByNotificationType("MARKETING"))
+                .thenReturn(rules);
+
+        List<NotificationEvent> recentEventList = new ArrayList<>();
+        recentEventList.add(new NotificationEvent(1L, "MARKETING", "user", LocalDateTime.now().minusSeconds(30)));
+
+        when(eventService.findByUserIdAndNotificationTypeAndTimestampAfter(eq("user"), eq("MARKETING"),
+                any(LocalDateTime.class)))
+                .thenReturn(recentEventList);
+
+        assertThrows(RateLimitExceededException.class, () -> {
+            service.send("MARKETING", "user", "BlockedMsg");
+        });
+
+        verify(gateway, never()).send(eq("user"), anyString());
+        verify(eventService, never()).save(any(NotificationEvent.class));
+    }
+
+    // Helper function for creating event lists
+    private List<NotificationEvent> createEventList(String notificationType, String userId, int elements) {
+        List<NotificationEvent> events = new ArrayList<>();
+        for (int i = 1; i <= elements; i++) {
+            events.add(new NotificationEvent((long) i, notificationType, userId, LocalDateTime.now()));
+        }
+        return events;
+    }
+}

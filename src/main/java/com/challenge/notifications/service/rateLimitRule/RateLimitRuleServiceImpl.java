@@ -21,9 +21,6 @@ public class RateLimitRuleServiceImpl implements RateLimitRuleService {
 
     @Override
     public RateLimitRule save(RateLimitRule rule) {
-        if (rule.getNotificationType() != null && !rule.getNotificationType().isEmpty()) {
-            rule.setNotificationType(rule.getNotificationType().toLowerCase().trim());
-        }
         return rateLimitRuleRepository.save(rule);
     }
 
@@ -40,10 +37,10 @@ public class RateLimitRuleServiceImpl implements RateLimitRuleService {
     @Override
     public RateLimitRule update(Long id, RateLimitRule rule) {
         RateLimitRule existingRateLimitRule = rateLimitRuleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("RateLimitRule not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Rule not found"));
 
         if (rule.getNotificationType() != null && !rule.getNotificationType().isEmpty()) {
-            existingRateLimitRule.setNotificationType(rule.getNotificationType().toLowerCase().trim());
+            existingRateLimitRule.setNotificationType(rule.getNotificationType());
         }
 
         if (rule.getMaxNotifications() != null) {
@@ -64,6 +61,6 @@ public class RateLimitRuleServiceImpl implements RateLimitRuleService {
 
     @Override
     public List<RateLimitRule> findByNotificationType(String notificationType) {
-        return rateLimitRuleRepository.findByNotificationType(notificationType.toLowerCase());
+        return rateLimitRuleRepository.findByNotificationType(notificationType);
     }
 }
