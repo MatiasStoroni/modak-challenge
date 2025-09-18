@@ -1,25 +1,39 @@
-package com.challenge.notifications.service;
+package com.challenge.notifications.service.notification;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.challenge.notifications.gateway.Gateway;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.challenge.notifications.model.NotificationEvent;
 import com.challenge.notifications.model.RateLimitRule;
 import com.challenge.notifications.model.TimeWindow;
+import com.challenge.notifications.service.Gateway;
+import com.challenge.notifications.service.notificationEvent.NotificationEventServiceImpl;
+import com.challenge.notifications.service.rateLimitRule.RateLimitRuleServiceImpl;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
+@Service
+@Transactional
 public class NotificationServiceImpl implements NotificationService {
+
+    @Autowired
     private final Gateway gateway;
-    private final List<RateLimitRule> rules;
-    private final List<NotificationEvent> notificationsHistory;
+
+    @Autowired
+    private RateLimitRuleServiceImpl ruleService;
+
+    @Autowired
+    private NotificationEventServiceImpl eventService;
 
     @Override
     public void send(String type, String userId, String message) {
 
-        List<RateLimitRule> applicableRules = findRulesForNotificationType(type);
+        List<RateLimitRule> applicableRules = ruleService.findByNotificationType(type);
 
         if (applicableRules.isEmpty()) {
             sendNotificationDirectly(userId, message, type);
@@ -34,12 +48,6 @@ public class NotificationServiceImpl implements NotificationService {
         sendNotificationDirectly(userId, message, type);
     }
 
-    private List<RateLimitRule> findRulesForNotificationType(String type) {
-        return rules.stream()
-                .filter(rule -> rule.getNotificationType().equals(type))
-                .toList();
-    }
-
     private boolean isRateLimitExceeded(List<RateLimitRule> applicableRules, String userId, String type) {
         for (RateLimitRule rule : applicableRules) {
             if (isRuleViolated(rule, userId, type)) {
@@ -51,7 +59,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private boolean isRuleViolated(RateLimitRule rule, String userId, String type) {
         LocalDateTime windowStart = calculateWindowStart(rule.getTimeWindow());
-        int currentMessageCount = countMessagesInWindow(windowStart, userId, type);
+        int currentMessageCount = eventService.countByUserAndTypeAfterTime(userId, type, windowStart);
         return currentMessageCount >= rule.getMaxNotifications();
     }
 
@@ -65,22 +73,17 @@ public class NotificationServiceImpl implements NotificationService {
         };
     }
 
-    private int countMessagesInWindow(LocalDateTime windowStartTime, String userId, String notificationType) {
-        return (int) notificationsHistory.stream()
-                .filter(event -> event.getUserId().equals(userId))
-                .filter(event -> event.getNotificationType().equals(notificationType))
-                .filter(event -> event.getTimestamp().isAfter(windowStartTime))
-                .count();
-    }
-
     private void sendNotificationDirectly(String userId, String message, String type) {
         gateway.send(userId, message);
         recordNotificationEvent(userId, type);
     }
 
     private void recordNotificationEvent(String userId, String type) {
-        NotificationEvent event = new NotificationEvent(type, userId, LocalDateTime.now());
-        notificationsHistory.add(event);
+        NotificationEvent event = new NotificationEvent();
+        event.setNotificationType(type);
+        event.setUserId(userId);
+        event.setTimestamp(LocalDateTime.now());
+        eventService.save(event);
     }
 
 }
