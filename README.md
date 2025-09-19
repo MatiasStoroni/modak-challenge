@@ -115,6 +115,16 @@ JSON body:
 
 `mvn clean test`
 
+### Test Coverage
+All business logic is covered by unit tests in `service/NotificationServiceTest.java`.
+These tests use **Mockito** to isolate the service from its dependencies (`Gateway`, `RateLimitRuleService`, `NotificationEventService`).
+
+Main test scenarios include:
+- No rules applied → notification is sent successfully.
+- Rule within limit → multiple notifications are allowed without reaching the limit.
+- Rule exceeded → `RateLimitExceededException` is thrown.
+- Different users → notifications are counted independently per user.
+- Multiple rules for the same notification type → stricter rule applies.
 ---
 
 ## 📝 Notes
