@@ -1,7 +1,7 @@
 # 📩 Notification Rate Limiter API
 
-A RESTful API built with Spring Boot that manages the sending of notifications with rate-limiting rules.  
-The project consists of a modular service architecture with REST endpoints. It allows defining rate-limit rules by notification type and time window, ensuring the system does not exceed those limits.
+A RESTful API built with Spring Boot that manages the sending of **notifications** with **rate-limiting rules**. It allows defining rate-limit rules by notification type and time window, ensuring the system does not exceed those limits.
+The project follows a **layered architecture**, with a clear separation of concerns across different layers: **controllers** (handling HTTP requests), **services** (containing business logic), and **models** (representing data entities and DTOs).
 
 ---
 
@@ -132,7 +132,6 @@ Main test scenarios include:
 - **NotificationServiceImpl** encapsulates the core rate-limiting logic.
 - **RateLimitRuleService** and **NotificationEventService** handle rules and events.
 - **Gateway** is a **stub** simulating an external messaging integration.
-- The project follows a **layered architecture**, with a clear separation of concerns across different layers: **controllers** (handling HTTP requests), **services** (containing business logic), and **models** (representing data entities and DTOs).
 
 ---
 
