@@ -8,8 +8,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.challenge.notifications.dto.NotificationResponseDto;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -19,12 +17,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<NotificationResponseDto> handleValidationErrors(MethodArgumentNotValidException e) {
+    public ResponseEntity<String> handleValidationErrors(MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
         return ResponseEntity.badRequest()
-                .body(new NotificationResponseDto("Validation failed: " + errorMessage, false));
+                .body("Validation failed: " + errorMessage);
     }
 }

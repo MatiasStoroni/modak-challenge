@@ -20,6 +20,6 @@ public class NotificationController {
     @PostMapping("/send")
     public ResponseEntity<String> sendNotification(@RequestBody NotificationRequestDto notification) {
         notificationService.send(notification.getNotificationType(), notification.getUserId(), notification.getMessage());
-        return ResponseEntity.ok("Notification sent successfully");
+        return ResponseEntity.ok("Notification sent successfully.");
     }
 }
