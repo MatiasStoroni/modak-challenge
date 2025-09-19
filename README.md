@@ -12,7 +12,8 @@ The project follows a **layered architecture**, with a clear separation of conce
 - Supports multiple rules simultaneously (e.g., per-minute and per-hour limits).  
 - Throws RateLimitExceededException when a rule is violated.
 - In-memory persistence for notification events and rules (demo mode).  
-- Unit tests with JUnit + Mockito.  
+- Unit tests with JUnit + Mockito.
+- Docker-ready: Can be built and run in a minimal Docker container or via Docker Compose for easy testing and deployment.
 
 ---
 ## ⚙️ Requirements
