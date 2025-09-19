@@ -1,14 +1,16 @@
-# ----------- Stage 1: Build the JAR -----------
+# ----------- Stage 1: Build the JAR with tests ----------- 
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy Maven files first (to leverage Docker cache for dependencies)
+# Copy Maven files first (to leverage Docker cache)
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copy source code and build
+# Copy source code
 COPY src ./src
-RUN mvn clean package -DskipTests
+
+# Run tests first, then build JAR
+RUN mvn clean test && mvn package -DskipTests
 
 # ----------- Stage 2: Run the JAR -----------
 FROM openjdk:17-jdk-slim
