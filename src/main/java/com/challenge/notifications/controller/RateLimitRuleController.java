@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.challenge.notifications.dto.CreateRuleDto;
 import com.challenge.notifications.model.RateLimitRule;
 import com.challenge.notifications.service.rateLimitRule.RateLimitRuleService;
 
@@ -38,8 +39,13 @@ public class RateLimitRuleController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createRateLimitRule(@Valid @RequestBody RateLimitRule rateLimitRule) {
-        RateLimitRule created = rateLimitRuleService.save(rateLimitRule);
+    public ResponseEntity<?> createRateLimitRule(@Valid @RequestBody CreateRuleDto dto) {
+        RateLimitRule newRule = new RateLimitRule();
+        newRule.setNotificationType(dto.getNotificationType());
+        newRule.setMaxNotifications(dto.getMaxNotifications());
+        newRule.setTimeWindow(dto.getTimeWindow());
+
+        RateLimitRule created = rateLimitRuleService.save(newRule);
         return ResponseEntity.ok(created);
     }
 
