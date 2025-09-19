@@ -153,7 +153,10 @@ JSON body example:
 ---
 
 ## 🧪 Testing
-**Run unit tests**:
+
+If Docker is used, unit tests are run before packaging the application. Test results will be displayed in the console.
+
+**Run unit tests manually**:
 
 `mvn clean test`
 
