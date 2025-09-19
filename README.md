@@ -1,81 +1,139 @@
-# 📩 Notification Rate Limiter
+# 📩 Notification Rate Limiter API
 
-A simple Java console application that simulates sending notifications with **rate-limiting rules**.  
-
-It allows you to define limits (per notification type and time window) and prevents users from exceeding them.
+A RESTful API built with Spring Boot that manages the sending of notifications with rate-limiting rules.  
+The project consists of a modular service architecture with REST endpoints. It allows defining rate-limit rules by notification type and time window, ensuring the system does not exceed those limits.
 
 ---
+
 ## ✨ Features
-- Define rate limit rules by **notification type** (e.g., `NEWS`, `STATUS`, etc.).  
-- Supported time windows: **SECOND, MINUTE, HOUR, DAY**.  
-- Interactive **console mode** to simulate sending notifications.  
-- Prevents users from exceeding the allowed number of messages.  
-- Unit tests included (with JaCoCo coverage).
+- REST API for sending notifications with rate-limiting control.  
+- Define rules by notification type and time window (MINUTE, HOUR, DAY, WEEK).  
+- Supports multiple rules simultaneously (e.g., per-minute and per-hour limits).  
+- Throws RateLimitExceededException when a rule is violated.
+- In-memory persistence for notification events and rules (demo mode).  
+- Unit tests with JUnit + Mockito.  
 
 ---
 ## ⚙️ Requirements
-- Java 17+  
-- Maven 3.6+  
+- Java 17+  
+- Maven 3.5+  
 ---
-## 🚀 Run the App
-1. Clone the repository:
-```
-git clone https://github.com/MatiasStoroni/modak-challenge.git
-cd modak-challenge
-```
-2. Build the project:
-`mvn clean install`  
-3. Run the app:
-`mvn exec:java`  
+
+## 🚀 Run the API
+1. **Clone the repository**:
+
+`git clone https://github.com/MatiasStoroni/modak-challenge.git`
+
+`cd modak-challenge`
+
+2. **Build the project**:
+
+`mvn clean install`
+
+3. **Start the Spring Boot server**:
+
+`mvn spring-boot:run`
+
+4. **The server will be available at**:
+
+`http://localhost:8080`
+
 ---
-## 🖥️ Console Usage
-When running, the app will:  
-1. Show the **existing rate limit rules**.  
-2. Ask you for:
-- Notification type
-- User ID
-- Number of messages (max 6)  
-#### Example session:  
+
+## 📡 Main Endpoints
+
+### Send notification
+`POST /notifications/send`
 ```
-Existing rules:
-- Type: news, Max: 3 per MINUTE
-- Type: status, Max: 5 per HOUR
+JSON body:  
+{
+    "notificationType": "NEWS",
+    "userId": "user",
+    "message": "News message number 1"
+}
+```
+#### Responses:  
+- **200 OK** → "Notification sent successfully"  
+- **429 Too Many Requests** → "Rate limit exceeded for *{ NotificationType }* notifications sent to user *{ UserId }*"
+- **400 Bad Request** - "Validation failed: *{ field }*: *{ field }* is required"
 
-Enter notification type (or 'exit'):
-news 
+---
 
-Enter userId:
-user1  
-
-Enter number of messages to send (max 6):
-4 
-
-✅ Sent notification #1 for user user1 (news)
-✅ Sent notification #2 for user user1 (news)
-❌ Rate limit exceeded for user user1 (news)
-❌ Rate limit exceeded for user user1 (news)
+### Get active rules
+`GET /rules` 
+#### Example response: 
+- **200 OK**
+```
+[
+    {
+        "id": 1,
+        "notificationType": "NEWS",
+        "maxNotifications": 1,
+        "timeWindow": "DAY"
+    },
+    {
+        "id": 2,
+        "notificationType": "STATUS",
+        "maxNotifications": 2,
+        "timeWindow": "MINUTE"
+    },
+    {
+        "id": 3,
+        "notificationType": "MARKETING",
+        "maxNotifications": 3,
+        "timeWindow": "HOUR"
+    }
+]
 ```
 ---
+
+### Get notification history
+`GET /events`
+#### Example response:  
+- **200 OK**
+```
+[
+    {
+        "id": 1,
+        "notificationType": "NEWS",
+        "userId": "user",
+        "timestamp": "2025-09-18T20:42:27.892732"
+    },
+    {
+        "id": 2,
+        "notificationType": "STATUS",
+        "userId": "user",
+        "timestamp": "2025-09-18T20:48:06.238313"
+    }
+]
+```
+
+---
+
 ## 🧪 Run Tests
-To run all unit tests:
-`mvn test`
-#### Reports (JaCoCo)
-Coverage report can be found at:
-`target/site/jacoco/index.html`.  
+**Run unit tests**:
+
+`mvn clean test`
 
 ---
-## 📝 Notes for Reviewers
 
-- The **console mode** is just a demo; in a real system, the `NotificationService` should be integrated with APIs or message queues.  
-- Models and logic are covered with **JUnit + JaCoCo**.
-- Max number of messages in one batch = **6** (to avoid spam).  
+## 📝 Notes
+- This is a **demo** implementation: data is persisted in-memory. In production, it would connect to a database or external messaging system.
+- **NotificationServiceImpl** encapsulates the core rate-limiting logic.
+- **RateLimitRuleService** and **NotificationEventService** handle rules and events.
+- **Gateway** is a **stub** simulating an external messaging integration.
+- The project follows a **layered architecture**, with a clear separation of concerns across different layers: **controllers** (handling HTTP requests), **services** (containing business logic), and **models** (representing data entities and DTOs).
+
 ---
-## 📂 Project Structure
+
+📂 Project Structure
 ```
-src/
-├── main/java/com/challenge/notifications/
-│   ├── model/         # Data models (RateLimitRule, NotificationEvent, TimeWindow)
-│   ├── service/       # NotificationService and implementation
-│   └── NotificationApplication.java   # Main console entry point
-└── test/java/...      # Unit tests
+src/  
+├── main/java/com/challenge/notifications/  
+│   ├── model/         # Data models (RateLimitRule, NotificationEvent, TimeWindow)
+│   ├── service/       # NotificationServiceImpl, RuleService, EventService  
+│   ├── controller/    # REST controllers  
+│   ├── exception/     # Custom exceptions and global handler  
+│   └── NotificationApplication.java           # Main class  
+└── test/java/com/challenge/notifications      # Unit tests  
 ```
