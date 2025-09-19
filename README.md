@@ -17,7 +17,7 @@ The project follows a **layered architecture**, with a clear separation of conce
 ---
 ## ⚙️ Requirements
 - Java 17+  
-- Maven 3.5+
+- Maven 3.9+
 - Docker & Docker Compose (optional, if running via Docker)
 ---
 
