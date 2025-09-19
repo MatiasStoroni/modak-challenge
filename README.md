@@ -110,7 +110,7 @@ JSON body:
 
 ---
 
-## 🧪 Run Tests
+## 🧪 Testing
 **Run unit tests**:
 
 `mvn clean test`
