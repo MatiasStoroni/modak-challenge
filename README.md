@@ -165,6 +165,7 @@ Main test scenarios include:
 - No rules applied → notification is sent successfully.
 - Rule within limit → multiple notifications are allowed without reaching the limit.
 - Rule exceeded → `RateLimitExceededException` is thrown.
+- Existing event within time window → ensures a notification is not sent if a previous event exists.
 - Different users → notifications are counted independently per user.
 - Multiple rules for the same notification type → stricter rule applies.
 ---
