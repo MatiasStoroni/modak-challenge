@@ -70,7 +70,7 @@ The project follows a **layered architecture**, with a clear separation of conce
 ### Send notification
 `POST /notifications/send`
 ```
-JSON body:  
+JSON body example:  
 {
     "notificationType": "NEWS",
     "userId": "user",
@@ -87,7 +87,7 @@ JSON body:
 ### Create rule
 `POST /rules`
 ```
-JSON body:  
+JSON body example:  
 {
     "notificationType": "NEWS",
     "maxNotifications": 1,
