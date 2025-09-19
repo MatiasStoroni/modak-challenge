@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.challenge.notifications.dto.NotificationRequestDto;
 import com.challenge.notifications.service.notification.NotificationService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/notifications")
 public class NotificationController {
@@ -18,7 +20,7 @@ public class NotificationController {
     NotificationService notificationService;
 
     @PostMapping("/send")
-    public ResponseEntity<String> sendNotification(@RequestBody NotificationRequestDto notification) {
+    public ResponseEntity<String> sendNotification(@Valid @RequestBody NotificationRequestDto notification) {
         notificationService.send(notification.getNotificationType(), notification.getUserId(), notification.getMessage());
         return ResponseEntity.ok("Notification sent successfully.");
     }
