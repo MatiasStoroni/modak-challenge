@@ -114,6 +114,29 @@ public class NotificationServiceTest {
     }
 
     @Test
+    public void send_WithRecentEventWithinWindow_ThrowsException() {
+        List<RateLimitRule> rules = new ArrayList<>();
+        rules.add(new RateLimitRule(1L, "MARKETING", 1, TimeWindow.WEEK));
+
+        when(ruleService.findByNotificationType("MARKETING"))
+                .thenReturn(rules);
+
+        List<NotificationEvent> oldEventList = new ArrayList<>();
+        oldEventList.add(new NotificationEvent(1L, "MARKETING", "user", LocalDateTime.now().minusDays(6)));
+
+        when(eventService.findByUserIdAndNotificationTypeAndTimestampAfter(eq("user"), eq("MARKETING"),
+                any(LocalDateTime.class)))
+                .thenReturn(oldEventList);
+
+        assertThrows(RateLimitExceededException.class, () -> {
+            service.send("MARKETING", "user", "Marketing message 1");
+        });
+
+        verify(gateway, never()).send(eq("user"), anyString());
+        verify(eventService, never()).save(any(NotificationEvent.class));
+    }
+
+    @Test
     public void send_DifferentUser_NotBlockedByAnotherUsersMessages() {
         List<RateLimitRule> rules = new ArrayList<>();
         rules.add(new RateLimitRule(1L, "NEWS", 1, TimeWindow.DAY));
