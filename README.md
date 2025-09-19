@@ -17,10 +17,13 @@ The project follows a **layered architecture**, with a clear separation of conce
 ---
 ## ⚙️ Requirements
 - Java 17+  
-- Maven 3.5+  
+- Maven 3.5+
+- Docker & Docker Compose (optional, if running via Docker)
 ---
 
 ## 🚀 Run the API
+
+### Option 1: Using Maven
 1. **Clone the repository**:
 
 `git clone https://github.com/MatiasStoroni/modak-challenge.git`
@@ -39,6 +42,27 @@ The project follows a **layered architecture**, with a clear separation of conce
 
 `http://localhost:8080`
 
+### Option 2: Using Docker
+
+1. Make sure Docker and Docker Compose are installed.
+2. Clone the repository:
+
+`git clone https://github.com/MatiasStoroni/modak-challenge.git`
+
+`cd modak-challenge`
+
+4. Start the application using Docker Compose:
+
+`docker-compose up --build`
+
+4. The server will be available at:
+
+`http://localhost:8080`
+
+5. To stop the containers:
+
+`docker-compose down`
+
 ---
 
 ## 📡 Main Endpoints
@@ -56,6 +80,22 @@ JSON body:
 #### Responses:  
 - **200 OK** → "Notification sent successfully"  
 - **429 Too Many Requests** → "Rate limit exceeded for *{ NotificationType }* notifications sent to user *{ UserId }*"
+- **400 Bad Request** - "Validation failed: *{ field }*: *{ field }* is required"
+
+---
+
+### Create rule
+`POST /rules`
+```
+JSON body:  
+{
+    "notificationType": "NEWS",
+    "maxNotifications": 1,
+    "timeWindow": "DAY"
+}
+```
+#### Responses:  
+- **200 OK** → { *Created Rule body* }  
 - **400 Bad Request** - "Validation failed: *{ field }*: *{ field }* is required"
 
 ---
