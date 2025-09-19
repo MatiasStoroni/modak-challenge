@@ -70,7 +70,7 @@ public class NotificationServiceImpl implements NotificationService {
             case MINUTE -> now.minusMinutes(1);
             case HOUR -> now.minusHours(1);
             case DAY -> now.minusDays(1);
-            case WEEK -> now.minusDays(7);
+            case WEEK -> now.minusWeeks(1);
         };
     }
 
